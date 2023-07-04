@@ -26,9 +26,6 @@ include(CMakePackageConfigHelpers)
 
 include(CTest)
 
-include_directories(include)
-
-# Create the cppgc C++ library
 set(cppgc_SRCS)
 
 set(STATIC_LIB_NAME ${PROJECT_NAME})
@@ -36,11 +33,12 @@ set(STATIC_LIB_NAME ${PROJECT_NAME})
 file(GLOB_RECURSE LIB_PATH
     ./lib/*.cc
   )
-list(APPEND cocktail_SRCS ${LIB_PATH})
+list(APPEND cppgc_SRCS ${LIB_PATH})
 
-add_library(${STATIC_LIB_NAME} STATIC ${cocktail_SRCS})
-target_link_libraries(${STATIC_LIB_NAME})
+add_library(${STATIC_LIB_NAME} STATIC ${cppgc_SRCS})
 
-#if (CPPGC_OPT_BUILD_UNITTESTS)
-#  add_subdirectory(unittests #[[EXCLUDE_FROM_ALL]])
-#endif()
+target_include_directories(${STATIC_LIB_NAME} PUBLIC include)
+
+if (CPPGC_OPT_BUILD_UNITTESTS)
+  add_subdirectory(unittests #[[EXCLUDE_FROM_ALL]])
+endif()
