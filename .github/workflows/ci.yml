@@ -19,7 +19,7 @@ jobs:
         run: |
          sudo apt-get update
          sudo apt-get install cmake g++ clang-15 \
-              libgtest-dev libgmock-dev libc++-dev \
+              libgtest-dev libgmock-dev libunwind-dev \
               make valgrind libbenchmark-dev libclang-15-dev libgoogle-glog-dev
       - uses: actions/checkout@v3
       - name: Generate makefile using CMake
