@@ -33,6 +33,17 @@ constexpr auto make_array(Function&& f) {
                                    std::make_index_sequence<Size>{});
 }
 
+template <typename T, bool RemoveArrayExtend = true>
+struct pass_value_or_ref {
+  using NorefType = std::remove_reference_t<T>;
+  using DecayType =
+      std::conditional_t<std::is_array_v<NorefType> && !RemoveArrayExtend,
+                         NorefType, std::decay_t<NorefType>>;
+  using type = std::conditional_t<std::is_scalar_v<DecayType> ||
+                                      std::is_array_v<DecayType>,
+                                  DecayType, const DecayType&>;
+};
+
 }  // namespace v8::base
 
 #endif  // V8_BASE_TEMPLATE_UTILS_H
