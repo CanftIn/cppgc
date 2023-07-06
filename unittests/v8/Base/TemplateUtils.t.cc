@@ -1,12 +1,10 @@
 #include "v8/Base/TemplateUtils.h"
 
+#include <glog/logging.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <glog/logging.h>
 
-namespace v8 {
-namespace base {
-namespace template_utils_unittest {
+namespace v8::base::template_utils_unittest {
 
 namespace {
 template <typename T, size_t Size>
@@ -34,6 +32,41 @@ TEST(TemplateUtilsTest, MakeArrayConstexpr) {
   CheckArrayEquals(ComputedArray, Expected);
 }
 
-}  // namespace template_utils_unittest
-}  // namespace base
-}  // namespace v8
+// Wrap into this helper struct, such that the type is printed on errors.
+template <typename T1, typename T2>
+struct CheckIsSame {
+  static_assert(std::is_same_v<T1, T2>, "test failure");
+};
+
+#define TEST_PASS_VALUE_OR_REF0(remove_extend, expected, given)               \
+  static_assert(                                                              \
+      sizeof(CheckIsSame<expected,                                            \
+                         pass_value_or_ref<given, remove_extend>::type>) > 0, \
+      "check")
+
+#define TEST_PASS_VALUE_OR_REF(expected, given)                          \
+  static_assert(                                                         \
+      sizeof(CheckIsSame<expected, pass_value_or_ref<given>::type>) > 0, \
+      "check")
+
+TEST_PASS_VALUE_OR_REF(int, int&);
+TEST_PASS_VALUE_OR_REF(int, int&&);
+TEST_PASS_VALUE_OR_REF(const char*, const char[14]);
+TEST_PASS_VALUE_OR_REF(const char*, const char*&&);
+TEST_PASS_VALUE_OR_REF(const char*, const char (&)[14]);
+TEST_PASS_VALUE_OR_REF(const std::string&, std::string);
+TEST_PASS_VALUE_OR_REF(const std::string&, std::string&);
+TEST_PASS_VALUE_OR_REF(const std::string&, const std::string&);
+TEST_PASS_VALUE_OR_REF(int, const int);
+TEST_PASS_VALUE_OR_REF(int, const int&);
+TEST_PASS_VALUE_OR_REF(const int*, const int*);
+TEST_PASS_VALUE_OR_REF(const int*, const int* const);
+TEST_PASS_VALUE_OR_REF0(false, const char[14], const char[14]);
+TEST_PASS_VALUE_OR_REF0(false, const char[14], const char (&)[14]);
+TEST_PASS_VALUE_OR_REF0(false, const std::string&, std::string);
+TEST_PASS_VALUE_OR_REF0(false, const std::string&, std::string&);
+TEST_PASS_VALUE_OR_REF0(false, const std::string&, const std::string&);
+TEST_PASS_VALUE_OR_REF0(false, int, const int);
+TEST_PASS_VALUE_OR_REF0(false, int, const int&);
+
+}  // namespace v8::base::template_utils_unittest

@@ -33,6 +33,11 @@ constexpr auto make_array(Function&& f) {
                                    std::make_index_sequence<Size>{});
 }
 
+// Helper to determine how to pass values: Pass scalars and arrays by value,
+// others by const reference (even if it was a non-const ref before; this is
+// disallowed by the style guide anyway).
+// The default is to also remove array extends (int[5] -> int*), but this can be
+// disabled by setting {remove_array_extend} to false.
 template <typename T, bool RemoveArrayExtend = true>
 struct pass_value_or_ref {
   using NorefType = std::remove_reference_t<T>;
